@@ -1,15 +1,18 @@
 #File for the Assumption Free K MC2 algorithm
+module CustomKMeans
+
 using Distributions
 using StatsBase
 using Clustering
 
 
+#Return K inducing points from X, m being the number of Markov iterations for the seeding
 function KMeansInducingPoints(X,K,m)
   C = (KmeansSeed(X,K,m))'
   kmeans!(X',C)
   return C'
 end
-
+#Fast and efficient seeding for KMeans
 function KmeansSeed(X,K,m) #X is the data, K the number of centers wanted, m the number of Markov iterations
   N = size(X,1)
   #Preprocessing, sample first random center
@@ -38,6 +41,7 @@ function KmeansSeed(X,K,m) #X is the data, K the number of centers wanted, m the
   return C
 end
 
+#Compue the minimum distance
 function mindistance(x,C,K) #Point to look for, collection of centers, number of centers computed
   mindist = Inf
   for i in 1:K
@@ -46,16 +50,4 @@ function mindistance(x,C,K) #Point to look for, collection of centers, number of
   return mindist
 end
 
-#(X_data,y_data) = generate_two_multivariate_data(2,2000; sep_ = 2.0, y_neg_= true)
-#=(X_data,y_data) = get_USPS()
-time = @elapsed C = Kmeans(X_data,50,10)
-println("took $time s")
-dim1 = 5; dim2 = 6;
-plot(X_data[:,dim1],X_data[:,dim2],linestyle="None",marker="o",color="red")
-plot(C[:,dim1],C[:,dim2],linestyle="None",marker="o",color="blue",markersize=15.0)
-C=C'
-time = @elapsed kmeans!(X_data',C)
-println("took $time s")
-C=C'
-plot(C[:,dim1],C[:,dim2],linestyle="None",marker="o",color="green",markersize=10.0)
-=#
+end #module

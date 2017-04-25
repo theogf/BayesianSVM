@@ -1,7 +1,8 @@
-include("../src/DataAccess.jl")
-include("test_functions.jl")
+if !isdefined(:DataAccess); include("../src/DataAccess.jl"); println("cjecwcs"); end;
+if !isdefined(:TestFunctions); include("test_functions.jl");end;
+using TestFunctions
 using PyPlot
-
+using DataAccess
 #Compare Platt, B-BSVM, ECM and GPC
 
 #Methods and scores to test
@@ -9,7 +10,7 @@ doBBSVM = false
 doSBSVM = false
 doPlatt = true
 doGPC = false
-doECM = false
+doECM = true
 
 doTime = true
 doAccuracy = true

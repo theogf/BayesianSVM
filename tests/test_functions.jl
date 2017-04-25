@@ -2,13 +2,19 @@
 #= ---------------- #
 Set of datatype and functions for efficient testing.
 # ---------------- =#
+
+
+if !isdefined(:ECM); include("../src/ECM.jl"); end;
+include("../src/SVISVM.jl")
+
 module TestFunctions
 
 using ScikitLearn
 using PyCall
 using Distributions
-include("../src/GibbsSampler.jl")
-include("../src/SVISVM.jl")
+using KernelFunctions
+using ECM
+
 @sk_import svm: SVC;
 @pyimport GPflow
 
@@ -139,7 +145,7 @@ function TrainModel(tm::TestingModel,X,y,iterations)
     tm.Model[:max_iter] = iterations
     time_training = @elapsed tm.Model[:fit](X,y)
   elseif tm.MethodType == "ECM"
-    time_training = @elapsed tm.Model = Henao(X,y,γ=tm.Param["γ"],nepochs=iterations,ϵ=tm.Param["ϵ"],kernel=tm.Param["Kernel"],verbose=tm.Param["Verbose"])
+    time_training = @elapsed tm.Model = ECMTraining(X,y,γ=tm.Param["γ"],nepochs=iterations,ϵ=tm.Param["ϵ"],kernel=tm.Param["Kernel"],verbose=tm.Param["Verbose"])
   end
   return time_training;
 end
@@ -211,7 +217,7 @@ function ComputePrediction(tm::TestingModel, X, X_test)
   elseif tm.MethodType == "SVM"
     y_predic = sign(tm.Model[:predict](X_test))
   elseif tm.MethodType == "ECM"
-    y_predic = sign(PredicHenao(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3]))
+    y_predic = sign(PredicECM(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3]))
   end
   return y_predic
 end
@@ -230,7 +236,7 @@ function ComputePredictionAccuracy(tm::TestingModel, X, X_test)
   elseif tm.MethodType == "SVM"
     y_predic = tm.Model[:predict_proba](X_test)[:,2]
   elseif tm.MethodType == "ECM"
-    y_predic = PredictProbaHenao(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3])
+    y_predic = PredictProbaECM(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3])
   end
   return y_predic
 end

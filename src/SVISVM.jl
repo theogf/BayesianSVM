@@ -1,7 +1,8 @@
 #module SVISVM
-include("KernelFunctions.jl")
-include("AFKMC2.jl")
+if !isdefined(:KernelFunctions); include("KernelFunctions.jl"); end;
+if !isdefined(:CustomKMeans); include("AFKMC2.jl"); end;
 using KernelFunctions
+using CustomKMeans
 using Distributions
 using StatsBase
 using PyPlot
