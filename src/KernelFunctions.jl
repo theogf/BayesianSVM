@@ -1,3 +1,10 @@
+#Module for the kernel type
+
+module KernelFunctions
+
+export Kernel
+export CreateKernelMatrix, CreateDiagonalKernelMatrix
+export delta_kroenecker
 
 
 type Kernel
@@ -140,14 +147,6 @@ function deriv_abel(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   -a*exp(-Θ*a)
 end
 
-#unction pw(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
-#  sinc(Θ*(X1-X2))
-#end
-#
-#function deriv_pw(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
-#
-#end
-
 function imk(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   1/(sqrt(norm(X1-X2)^2+Θ))
 end
@@ -167,3 +166,5 @@ end
 function deriv_quadratic(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   2*(dot(X1,X2)+Θ)
 end
+
+end #end of module

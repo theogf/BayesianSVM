@@ -1,6 +1,7 @@
 #module SVISVM
 include("KernelFunctions.jl")
 include("AFKMC2.jl")
+using KernelFunctions
 using Distributions
 using StatsBase
 using PyPlot
