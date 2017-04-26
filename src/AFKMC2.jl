@@ -1,10 +1,10 @@
-#File for the Assumption Free K MC2 algorithm
+#File for the Assumption Free K MC2 algorithm (KMeans)
 module CustomKMeans
 
 using Distributions
 using StatsBase
 using Clustering
-
+export KMeansInducingPoints
 
 #Return K inducing points from X, m being the number of Markov iterations for the seeding
 function KMeansInducingPoints(X,K,m)

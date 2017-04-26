@@ -1,4 +1,5 @@
 #Module for the kernel type
+#
 
 module KernelFunctions
 
@@ -8,13 +9,13 @@ export delta_kroenecker
 
 
 type Kernel
-    kernel_function::Function
-    coeff::Float64
-    derivative_kernel::Function
-    param::Float64
-    Nparams::Int64
-    compute::Function
-    compute_deriv::Function
+    kernel_function::Function # Kernel function
+    coeff::Float64 #Weight for the kernel
+    derivative_kernel::Function # Derivative of the kernel function (used for hyperparameter optimization)
+    param::Float64 #Hyperparameter for the kernel function (depends of the function)
+    Nparams::Int64 #Number of hyperparameters
+    compute::Function #General computational function
+    compute_deriv::Function #General derivative function
     #Constructor
     function Kernel(kernel, coeff::Float64; params=0)
       this = new()
@@ -106,6 +107,7 @@ function delta_kroenecker(X1::Array{Float64,1},X2::Array{Float64,1})
   return X1==X2 ? 1 : 0
 end
 
+#Gaussian (RBF) Kernel
 function rbf(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   if X1 == X2
     return 1
@@ -123,6 +125,7 @@ function deriv_rbf(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   end
 end
 
+#Laplace Kernel
 function laplace(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   if X1 == X2
     return 1
@@ -135,6 +138,7 @@ function deriv_laplace(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   -a*exp(-Θ*a)
 end
 
+#Abel Kernel
 function abel(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   if X1==X2
     return 1
@@ -155,10 +159,12 @@ function deriv_imk(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   -1/(2*(sqrt(norm(X1-X2)+Θ))^3)
 end
 
+#Linear Kernel
 function linear(X1::Array{Float64,1},X2::Array{Float64,1})
   dot(X1,X2)
 end
 
+#Quadratic Kernel (special case of polynomial kernel)
 function quadratic(X1::Array{Float64,1},X2::Array{Float64,1},Θ)
   (dot(X1,X2)+Θ)^2
 end

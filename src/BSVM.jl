@@ -1,4 +1,4 @@
-#module SVISVM
+#module BSVM
 if !isdefined(:KernelFunctions); include("KernelFunctions.jl"); end;
 if !isdefined(:CustomKMeans); include("AFKMC2.jl"); end;
 using KernelFunctions
@@ -14,8 +14,8 @@ using ScikitLearn: fit!
 #export StochasticVariationalInferenceAlgorithm
 #export PredictiveDistribution
 
-#Corresponds to the SVISVM model
-type VariationalInferenceSVM
+#Corresponds to the BSVM model
+type BSVM
   #Stochastic parameters
   Stochastic::Bool
     nSamplesUsed::Int64 #Size of the minibatch used
@@ -42,13 +42,13 @@ type VariationalInferenceSVM
   β_init::Array{Float64,1} #Initial value for β
   smoothingWindow::Int64
   VerboseLevel::Int64
-  Storing::Bool
-    StoringFrequency::Int64
-    storedValues::Tuple
-
+  Storing::Bool #Store values for debugging purposes
+    StoringFrequency::Int64 #Every X steps
+    StoredValues::Array{Float64,2}
+    StoreddELBO::Array{Float64,2}
 
   #Functions
-  Kernel_function::Function
+  Kernel_function::Function #kernel function associated with the model
   Predict::Function
   PredictProba::Function
   ELBO::Function
@@ -78,13 +78,11 @@ type VariationalInferenceSVM
   h::Float64
   ρ_Θ::Float64 # learning rate for auto tuning
   initialized::Bool
-  StoredValues::Array{Float64,2}
-  StoreddELBO::Array{Float64,2}
-  evol_β::Array{Float64,2}
+  evol_β::Array{Float64,2} #Store the betas for smooth convergence criterium
 
 
   #Constructor
-  function VariationalInferenceSVM(Stochastic::Bool;
+  function BSVM(;Stochastic::Bool=false,
                                   Sparse::Bool=false,NonLinear::Bool=true,AdaptativeLearningRate::Bool=true,Autotuning::Bool=false,
                                   nEpochs::Int64 = 2000,
                                   batchSize::Int64=-1,κ_s::Float64=1.0,τ_s::Int64=100,
@@ -92,7 +90,8 @@ type VariationalInferenceSVM
                                   Intercept::Bool=false,ϵ::Float64=1e-5,β_init=[0.0],smoothingWindow::Int64=10,
                                   Storing::Bool=false,StoringFrequency::Int64=1,VerboseLevel::Int64=0)
     iter = 1
-    if kernels == 0
+    if kernels == 0 && NonLinear
+      warn("No kernel indicated, a rbf kernel function with lengthscale 1 is used")
       kernels = [Kernel("rbf",1.0,params=1.0)]
     end
     this = new(Stochastic,batchSize,κ_s,τ_s,NonLinear,Sparse,kernels,γ,m,inducingPointsSelectionMethod,Autotuning,κ_Θ,τ_Θ,autotuningfrequency,AdaptativeLearningRate,Intercept,ϵ,nEpochs,β_init,smoothingWindow,VerboseLevel,Storing,StoringFrequency)
@@ -163,7 +162,7 @@ type VariationalInferenceSVM
 end
 
 #Function to check consistency of the different parameters and the possible correction of some of them in some cases
-function ModelVerification(model::VariationalInferenceSVM,XSize,ySize)
+function ModelVerification(model::BSVM,XSize,ySize)
   if model.Intercept && model.NonLinear
     warn("Not possible to have intercept for the non linear case, removing automatically this option")
     model.Intercept = false
@@ -189,10 +188,14 @@ function ModelVerification(model::VariationalInferenceSVM,XSize,ySize)
     warn("No batch size has been given, stochastic option has been removed")
     model.Stochastic = false
   end
+  if model.m > XSize[1] && model.Sparse
+    warn("Number of inducing points bigger then number of data points, setting it back to non sparse configuration")
+    model.Sparse = false
+  end
   return true
 end
 
-function TrainVISVM(model::VariationalInferenceSVM,X::Array{Float64,2},y::Array{Float64,1})
+function TrainBSVM(model::BSVM,X::Array{Float64,2},y::Array{Float64,1})
   #Verification of consistency of the model
   if !ModelVerification(model,size(X),size(y))
     return
@@ -339,7 +342,7 @@ end
 
 
 
-function Update(model::VariationalInferenceSVM,X::Array{Float64,2},y::Array{Float64,1},iter::Int64) #Coordinates ascent of the parameters
+function Update(model::BSVM,X::Array{Float64,2},y::Array{Float64,1},iter::Int64) #Coordinates ascent of the parameters
     if model.Stochastic
       batchindices = StatsBase.sample(1:model.nSamples,model.nSamplesUsed,replace=false)
     else
@@ -548,7 +551,7 @@ function SparseELBO(model,y)
 end
 
 
-function Plotting(option::String,model::VariationalInferenceSVM)
+function Plotting(option::String,model::BSVM)
   if !model.Storing
     warn("Data was not saved during training, please rerun training with option Storing=true")
     return

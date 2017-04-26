@@ -1,3 +1,7 @@
+#### Test_Predictions ####
+# Run on a file and compute accuracy on a nFold cross validation
+# Compute also the brier score and the logscore
+
 if !isdefined(:DataAccess); include("../src/DataAccess.jl"); println("cjecwcs"); end;
 if !isdefined(:TestFunctions); include("test_functions.jl");end;
 using TestFunctions
@@ -12,30 +16,33 @@ doPlatt = true
 doGPC = false
 doECM = true
 
-doTime = true
-doAccuracy = true
-doBrierScore = true#false
-doLogScore = false
+doTime = true #Return time needed for training
+doAccuracy = true #Return Accuracy
+doBrierScore = true # Return BrierScore
+doLogScore = false #Return LogScore
 
-doWrite = false
+doWrite = false #Write results in approprate folder
 ShowIntResults = false #Show intermediate time, and results for each fold
 #Testing Parameters
+#= Datasets available are get_X :
+Ionosphere,Sonar,Crabs,USPS, Banana, Image, RingNorm
+BreastCancer, Titanic, Splice, Diabetis, Thyroid, Heart, Waveform, Flare
+=#
 (X_data,y_data,DatasetName) = get_BreastCancer()
-showInterAcc = true
-MaxIter = 100
+MaxIter = 100 #Maximum number of iterations for every algorithm
 (nSamples,nFeatures) = size(X_data);
-cross_validation = true; nFold = 10;
-fold_separation = collect(1:nSamples÷nFold:nSamples+1)
+nFold = 10; #Chose the number of folds
+fold_separation = collect(1:nSamples÷nFold:nSamples+1) #Separate the data in nFold
 
 
 #Main Parameters
 main_param = DefaultParameters()
 main_param["nFeatures"] = nFeatures
 main_param["nSamples"] = nSamples
-main_param["ϵ"] = 1e-5
-main_param["Θ"] = 5.0
+main_param["ϵ"] = 1e-5 #Convergence criterium
 main_param["M"] = min(100,floor(Int64,0.2*nSamples))
 main_param["Kernel"] = "rbf"
+main_param["Θ"] = 5.0 #Hyperparameter of the kernel
 main_param["BatchSize"] = 10
 main_param["Verbose"] = false
 main_param["Window"] = 30
@@ -78,7 +85,7 @@ for (name,testmodel) in TestModels
     y_test = y_data[fold_separation[i]:(fold_separation[i+1])-1]
     X = X_data[vcat(collect(1:fold_separation[i]-1),collect(fold_separation[i+1]:nSamples)),:]
     y = y_data[vcat(collect(1:fold_separation[i]-1),collect(fold_separation[i+1]:nSamples))]
-    CreateModel(testmodel,main_param,X,y)
+    CreateModel(testmodel,X,y)
     time = TrainModel(testmodel,X,y,MaxIter)
     if ShowIntResults
       println("$(testmodel.MethodName) : Time  = $time")

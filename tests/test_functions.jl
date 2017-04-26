@@ -5,7 +5,7 @@ Set of datatype and functions for efficient testing.
 
 
 if !isdefined(:ECM); include("../src/ECM.jl"); end;
-include("../src/SVISVM.jl")
+include("../src/BSVM.jl")
 
 module TestFunctions
 
@@ -70,7 +70,7 @@ function BSVMParameters(;Stochastic=true,NonLinear=true,Sparse=true,ALR=true,Aut
   return param
 end
 
-#Create a default parameters dictionary for GPC
+#Create a default parameters dictionary for GPC (similar to BSVM)
 function GPCParameters(;Sparse=true,Stochastic=false,main_param=DefaultParameters())
   param = Dict{String,Any}()
   param["Sparse"] = Sparse
@@ -86,7 +86,7 @@ function GPCParameters(;Sparse=true,Stochastic=false,main_param=DefaultParameter
   return param
 end
 
-#Create a default parameters  dictionary for ECM
+#Create a default parameters  dictionary for ECM (similar to BSVM)
 function ECMParameters(;main_param=DefaultParameters())
   param = Dict{String,Any}()
   param["ϵ"] = main_param["ϵ"]
@@ -97,7 +97,7 @@ function ECMParameters(;main_param=DefaultParameters())
 end
 
 
-#Create a default parameters  dictionary for SVM
+#Create a default parameters  dictionary for SVM (similar to BSVM)
 function SVMParameters(;probability = true,main_param=DefaultParameters())
   param = Dict{String,Any}()
   param["probability"] = probability
@@ -110,9 +110,9 @@ function SVMParameters(;probability = true,main_param=DefaultParameters())
 end
 
 #Create a model given the parameters passed in p
-function CreateModel(tm::TestingModel,p::Dict{String,Any},X,y) #tm testing_model, p parameters
+function CreateModel(tm::TestingModel,X,y) #tm testing_model, p parameters
   if tm.MethodType == "BSVM"
-    tm.Model = VariationalInferenceSVM(tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"],
+    tm.Model = BSVM(tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"],
     kernels=tm.Param["Kernels"],Autotuning=tm.Param["AutoTuning"],autotuningfrequency=tm.Param["ATFrequency"],AdaptativeLearningRate=tm.Param["ALR"],κ_s=tm.Param["κ_s"],τ_s = tm.Param["τ_s"],ϵ=tm.Param["ϵ"],γ=tm.Param["γ"],
     κ_Θ=tm.Param["κ"],τ_Θ=tm.Param["τ"],smoothingWindow=tm.Param["Window"],VerboseLevel=tm.Param["Verbose"])
   elseif tm.MethodType == "GPC"
@@ -138,7 +138,7 @@ function TrainModel(tm::TestingModel,X,y,iterations)
   time_training = 0;
   if tm.MethodType == "BSVM"
     tm.Model.nEpochs = iterations
-    time_training = @elapsed TrainVISVM(tm.Model,X,y)
+    time_training = @elapsed TrainBSVM(tm.Model,X,y)
   elseif tm.MethodType == "GPC"
     time_training = @elapsed tm.Model[:optimize](maxiter=iterations)
   elseif tm.MethodType == "SVM"
