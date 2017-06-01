@@ -2,7 +2,7 @@
 # Run on a file and compute accuracy on a nFold cross validation
 # Compute also the brier score and the logscore
 
-if !isdefined(:DataAccess); include("../src/DataAccess.jl"); println("cjecwcs"); end;
+if !isdefined(:DataAccess); include("../src/DataAccess.jl");end;
 if !isdefined(:TestFunctions); include("test_functions.jl");end;
 using TestFunctions
 using PyPlot
@@ -10,11 +10,11 @@ using DataAccess
 #Compare Platt, B-BSVM, ECM and GPC
 
 #Methods and scores to test
-doBBSVM = false
+doBBSVM = true
 doSBSVM = false
-doPlatt = true
+doPlatt = false
 doGPC = false
-doECM = true
+doECM = false
 
 doTime = true #Return time needed for training
 doAccuracy = true #Return Accuracy

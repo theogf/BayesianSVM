@@ -1,6 +1,7 @@
 #module BSVM
 if !isdefined(:KernelFunctions); include("KernelFunctions.jl"); end;
 if !isdefined(:CustomKMeans); include("AFKMC2.jl"); end;
+include("KISS.jl");
 using KernelFunctions
 using CustomKMeans
 using Distributions
@@ -23,6 +24,7 @@ type BSVM
     τ_s::Float64
   #Non linear parameters
   NonLinear::Bool
+  KISS::Bool
   Sparse::Bool
     kernels::Array{Kernel,1} #Kernels function used
     γ::Float64 # Regularization parameter of the noise
@@ -83,7 +85,7 @@ type BSVM
 
   #Constructor
   function BSVM(;Stochastic::Bool=false,
-                                  Sparse::Bool=false,NonLinear::Bool=true,AdaptativeLearningRate::Bool=true,Autotuning::Bool=false,
+                                  Sparse::Bool=false,NonLinear::Bool=true,KISS::Bool=false,AdaptativeLearningRate::Bool=true,Autotuning::Bool=false,
                                   nEpochs::Int64 = 2000,
                                   batchSize::Int64=-1,κ_s::Float64=1.0,τ_s::Int64=100,
                                   kernels=0,γ::Float64=1e-3,m::Int64=100,inducingPointsSelectionMethod::String="Random",κ_Θ::Float64=1.0,τ_Θ::Int64=100,autotuningfrequency::Int64=10,
@@ -94,7 +96,7 @@ type BSVM
       warn("No kernel indicated, a rbf kernel function with lengthscale 1 is used")
       kernels = [Kernel("rbf",1.0,params=1.0)]
     end
-    this = new(Stochastic,batchSize,κ_s,τ_s,NonLinear,Sparse,kernels,γ,m,inducingPointsSelectionMethod,Autotuning,κ_Θ,τ_Θ,autotuningfrequency,AdaptativeLearningRate,Intercept,ϵ,nEpochs,β_init,smoothingWindow,VerboseLevel,Storing,StoringFrequency)
+    this = new(Stochastic,batchSize,κ_s,τ_s,NonLinear,KISS,Sparse,kernels,γ,m,inducingPointsSelectionMethod,Autotuning,κ_Θ,τ_Θ,autotuningfrequency,AdaptativeLearningRate,Intercept,ϵ,nEpochs,β_init,smoothingWindow,VerboseLevel,Storing,StoringFrequency)
     this.initialized = false
     if NonLinear
       this.top = 0
@@ -228,7 +230,12 @@ function TrainBSVM(model::BSVM,X::Array{Float64,2},y::Array{Float64,1})
     #Creation of the Kernel Matrix and its inverse in the different cases as well as the prior
     if model.NonLinear
       if !model.Sparse
-        model.invK = inv(Symmetric(CreateKernelMatrix(X,model.Kernel_function) + model.γ*eye(model.nFeatures),:U))
+
+        if model.KISS
+          model.invK = getInverseKISSMatrix(X,model.kernels,model.γ);
+        else
+          model.invK = inv(Symmetric(CreateKernelMatrix(X,model.Kernel_function) + model.γ*eye(model.nFeatures),:U))
+        end
       end
       if model.Sparse
         if model.inducingPointsSelectionMethod == "Random"

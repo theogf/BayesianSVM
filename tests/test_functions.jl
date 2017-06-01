@@ -51,11 +51,12 @@ function DefaultParameters()
 end
 
 #Create a default parameters dictionary for BSVM
-function BSVMParameters(;Stochastic=true,NonLinear=true,Sparse=true,ALR=true,Autotuning=false,main_param=DefaultParameters())
+function BSVMParameters(;Stochastic=true,NonLinear=true,Sparse=true,ALR=true,Autotuning=false,KISS=false,main_param=DefaultParameters())
   param = Dict{String,Any}()
   param["Stochastic"] = Stochastic #Is the method stochastic
   param["Sparse"] = Sparse #Is the method using inducing points
   param["NonLinear"] = NonLinear #Is the method using kernels
+  param["KISS"] = KISS
   param["ALR"] = ALR #Is the method using adpative learning rate (in case of the stochastic case)
   param["AutoTuning"] = Autotuning #Is hyperoptimization performed
   param["ATFrequency"] = 10 #How even autotuning is performed
@@ -112,7 +113,7 @@ end
 #Create a model given the parameters passed in p
 function CreateModel(tm::TestingModel,X,y) #tm testing_model, p parameters
   if tm.MethodType == "BSVM"
-    tm.Model = BSVM(tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"],
+    tm.Model = BSVM(tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"], KISS=tm.Param["KISS"],
     kernels=tm.Param["Kernels"],Autotuning=tm.Param["AutoTuning"],autotuningfrequency=tm.Param["ATFrequency"],AdaptativeLearningRate=tm.Param["ALR"],κ_s=tm.Param["κ_s"],τ_s = tm.Param["τ_s"],ϵ=tm.Param["ϵ"],γ=tm.Param["γ"],
     κ_Θ=tm.Param["κ"],τ_Θ=tm.Param["τ"],smoothingWindow=tm.Param["Window"],VerboseLevel=tm.Param["Verbose"])
   elseif tm.MethodType == "GPC"

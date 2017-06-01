@@ -4,9 +4,9 @@
 module KernelFunctions
 
 export Kernel
+export Kernel_Combination
 export CreateKernelMatrix, CreateDiagonalKernelMatrix
 export delta_kroenecker
-
 
 type Kernel
     kernel_function::Function # Kernel function
@@ -61,6 +61,35 @@ type Kernel
       end
       return this
     end
+end
+
+type Kernel_Combination
+  kernels::Array{Kernel,1}
+  Nkernels::Int64
+  compute::Function
+  add_Kernel::Function
+
+  function Kernel_Combination(kernel_list)
+    this = new()
+    this.Nkernels = 0
+    this.kernels = Array{Kernel,1}()
+    this.add_Kernel = function(kern)
+      push!(this.kernels,kern);
+      this.Nkernels += 1;
+      end
+    for i in 1:length(kernel_list)
+      this.add_Kernel(kernel_list[i])
+    end
+    this.compute = function(X1,X2)
+        sum = 0
+        # println("There are $(this.NKernels)")
+        for i in 1:this.Nkernels
+          sum += this.kernels[i].coeff * this.kernels[i].compute(X1,X2);
+        end
+        return sum
+      end
+    return this
+  end
 end
 
 function CreateKernelMatrix(X1,kernel_function;X2=0) #Create the kernel matrix from the training data or the correlation matrix between two set of data
