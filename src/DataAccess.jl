@@ -3,7 +3,7 @@
 module DataAccess
 
 using Distributions
-
+using PDMats
 export generate_uniform_data, generate_normal_data, generate_two_multivariate_data
 export get_Ionosphere, get_Sonar, get_Crabs, get_USPS
 export get_SUSY, get_Banana, get_Image, get_RingNorm
@@ -12,7 +12,7 @@ export get_Titanic, get_Splice, get_Diabetis, get_Thyroid
 export get_Heart, get_Waveform, get_Flare
 
 
-function generate_uniform_data(nFeatures_::Int64,nSamples_::Int64; y_neg_::Bool = true, boxsize_::Float64 = 1.0, noise_::Float64 = 0.3)
+function generate_uniform_data(nFeatures_::Int64,nSamples_::Int64; range::Float64 = 1.0, y_neg_::Bool = true, boxsize_::Float64 = 1.0, noise_::Float64 = 0.3)
   generate_data(2, nFeatures_, nSamples_, y_neg = y_neg_, range = boxsize_, noise = noise_)
 end
 

@@ -230,9 +230,9 @@ function TrainBSVM(model::BSVM,X::Array{Float64,2},y::Array{Float64,1})
     #Creation of the Kernel Matrix and its inverse in the different cases as well as the prior
     if model.NonLinear
       if !model.Sparse
-
         if model.KISS
-          model.invK = getInverseKISSMatrix(X,model.kernels,model.γ);
+          (model.invK,K_UU,K_XU) = KISSMatrices(X,model.kernels,model.γ;npoints=40);
+
         else
           model.invK = inv(Symmetric(CreateKernelMatrix(X,model.Kernel_function) + model.γ*eye(model.nFeatures),:U))
         end
