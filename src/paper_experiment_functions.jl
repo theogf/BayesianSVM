@@ -5,7 +5,7 @@ Set of datatype and functions for efficient testing.
 
 
 if !isdefined(:ECM); include("../src/ECM.jl"); end;
-include("../src/BSVM.jl")
+if !isdefined(:BayesianSVM); include("../src/BSVM.jl"); end;
 
 module TestFunctions
 
@@ -14,7 +14,7 @@ using PyCall
 using Distributions
 using KernelFunctions
 using ECM
-
+using BayesianSVM
 @sk_import svm: SVC;
 @pyimport GPflow
 

@@ -13,7 +13,7 @@ using DataAccess
 Ionosphere,Sonar,Crabs,USPS, Banana, Image, RingNorm
 BreastCancer, Titanic, Splice, Diabetis, Thyroid, Heart, Waveform, Flare (a package will be soon created to deal with user's datasets)
 =#
-(X_data,y_data,DatasetName) = get_BreastCancer()
+(X_data,y_data,DatasetName) = get_USPS()
 (nSamples,nFeatures) = size(X_data);
 nFold = 10; #Chose the number of folds
 fold_separation = collect(1:nSamples÷nFold:nSamples+1) #Separate the data in nFold
@@ -46,11 +46,12 @@ if doLogScore; push!(writing_order,"logscore"); end;
 #Initialize the results storage
 if doTime;        Model.Results["time"]       = Array{Float64,1}();end; if doAccuracy;    Model.Results["accuracy"]   = Array{Float64,1}();end;
 if doBrierScore;  Model.Results["brierscore"] = Array{Float64,1}();end; if doLogScore;    Model.Results["logscore"]   = Array{Float64,1}();end;
-for i in 1:nFold #Run over all folds of the data
+
 
 
 ###### Training  Model ######
-println("Running SBVM on $(Model.DatasetName) dataset")
+println("Running BSVM on $(Model.DatasetName) dataset")
+for i in 1:nFold #Run over all folds of the data
   if ShowIntResults
     println("#### Fold number $i/$nFold ###")
   end
@@ -73,7 +74,7 @@ end
 
 ##### Process the results from the k-fold ####
 ProcessResults(Model,writing_order) #Compute mean and std deviation
-PrintResults(Model.Results["allresults"],testmodel.MethodName,writing_order) #Print the Results in the end
+PrintResults(Model.Results["allresults"],Model.MethodName,writing_order) #Print the Results in the end
 if doWrite
   top_fold = "data";
   if !isdir(top_fold); mkdir(top_fold); end;

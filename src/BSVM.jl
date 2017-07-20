@@ -1,6 +1,8 @@
-#module BSVM
 if !isdefined(:KernelFunctions); include("KernelFunctions.jl"); end;
 if !isdefined(:CustomKMeans); include("AFKMC2.jl"); end;
+
+module BayesianSVM
+
 using KernelFunctions
 using CustomKMeans
 using Distributions
@@ -10,9 +12,8 @@ using GaussianMixtures
 using ScikitLearn
 using ScikitLearn: fit!
 
-#export VariationalInferenceAlgorithm
-#export StochasticVariationalInferenceAlgorithm
-#export PredictiveDistribution
+export BSVM
+export TrainBSVM
 
 #Corresponds to the BSVM model
 type BSVM
@@ -689,71 +690,4 @@ function SparsePredict(X_test,model)
   return k_star*model.top
 end
 
-#=function SparsePredictProb(X,X_test,model)
-  n = size(X_test,1)
-  #if model.down == 0
-  #  if model.top == 0
-      model.K = CreateKernelMatrix(X,model.Kernel_function)+model.γ*eye(size(X,1))
-      model.invK = Matrix(Symmetric(inv(model.K),:U))
-      model.top = model.invK*model.κ*model.μ
-  #  end
-    KtildeComplete = model.K - model.κ*CreateKernelMatrix(model.inducingPoints,model.Kernel_function,X2=X)
-    model.down = model.invK + model.invK*(KtildeComplete - model.κ*model.ζ*(model.κ'))
-    model.MatricesPrecomputed = true
-  #end
-  ksize = size(X,1)
-  predic = zeros(n)
-  k_star = zeros(ksize)
-  k_starstar = 0
-  for i in 1:n
-    for j in 1:ksize
-      k_star[j] = model.Kernel_function(X[j,:],X_test[i,:])
-    end
-    k_starstar = model.Kernel_function(X_test[i,:],X_test[i,:])
-    predic[i] = cdf(Normal(),(dot(k_star,model.top))/(k_starstar - dot(k_star,model.down*k_star) + 1))
-  end
-  predic
-end
-
-
-function SparsePredict(X,X_test,model)
-  n = size(X_test,1)
-  #if model.top == 0
-    model.K = CreateKernelMatrix(X,model.Kernel_function)+model.γ*eye(size(X,1))
-    model.invK = Matrix(Symmetric(inv(model.K)))
-    model.top = model.invK*model.κ*model.μ
-  #end
-  k_star = CreateKernelMatrix(X_test,model.Kernel_function,X2=X)
-  return k_star*model.top
-end=#
-
-
-
-    #Update of the noise
-    #=γs = linspace(0.01,0.02,200)
-    ELBOs = zeros(length(γs))
-    grad_ELBO = zeros(length(γs)-1)
-    grads = zeros(length(γs))
-    for i in 1:length(γs)
-
-      model.K = CreateKernelMatrix(X,model.Kernel_function)+γs[i]*eye(size(X,1))
-      model.invK = Matrix(Symmetric(inv(model.K),:U))
-      V = model.invK*model.kernels[1].coeff*CreateKernelMatrix(X,model.kernels[1].compute_deriv)
-      A = model.invK*model.ζ-eye(model.nFeatures)
-      #grads[i]  = 0.5*(trace(V*A)+dot(model.μ,V*model.invK*model.μ))
-      ELBOs[i] = model.ELBO(X,y)
-      if i%100 == 0
-        println(i)
-      end
-    end
-    #println(grads)
-
-    steps =(γs[2:end]-γs[1:end-1])
-    grad_ELBO = (ELBOs[2:end]-ELBOs[1:end-1])./steps
-    #println(grad_ELBO)
-    semilogx(γs,grads,color="blue")
-    semilogx(γs,ELBOs,color="red")
-    semilogx(γs[1:end-1],grad_ELBO,color="green")
-
-=#
-#The traces are replaced by sums of Hadamard product (entrywise) of matrix
+end #End Module

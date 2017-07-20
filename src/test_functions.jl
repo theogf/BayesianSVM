@@ -3,10 +3,11 @@
 Set of datatype and functions for efficient testing.
 # ---------------- =#
 
-include("BSVM.jl")
+if !isdefined(:BayesianSVM); include("BSVM.jl"); end;
 
 module TestFunctions
 
+using BayesianSVM
 using ScikitLearn
 using Distributions
 using KernelFunctions
@@ -63,83 +64,18 @@ function BSVMParameters(;Stochastic=true,NonLinear=true,Sparse=true,ALR=true,Aut
   return param
 end
 
-#Create a default parameters dictionary for GPC (similar to BSVM)
-function GPCParameters(;Sparse=true,Stochastic=false,main_param=DefaultParameters())
-  param = Dict{String,Any}()
-  param["Sparse"] = Sparse
-  if Sparse
-    param["Stochastic"] = Stochastic
-  else
-    param["Stochastic"] = false
-  end
-  param["ϵ"] = main_param["ϵ"]
-  param["Kernel"] = GPflow.kernels[:Add]([GPflow.kernels[:RBF](main_param["nFeatures"]),GPflow.kernels[:White](input_dim=main_param["nFeatures"],variance=main_param["γ"])])
-  param["BatchSize"] = main_param["BatchSize"]
-  param["M"] = main_param["M"]
-  return param
-end
-
-#Create a default parameters  dictionary for ECM (similar to BSVM)
-function ECMParameters(;main_param=DefaultParameters())
-  param = Dict{String,Any}()
-  param["ϵ"] = main_param["ϵ"]
-  param["Kernel"] = Kernel(main_param["Kernel"],1.0,params=main_param["Θ"])
-  param["γ"] = main_param["γ"]
-  param["Verbose"] = main_param["Verbose"]
-  return param
-end
-
-
-#Create a default parameters  dictionary for SVM (similar to BSVM)
-function SVMParameters(;probability = true,main_param=DefaultParameters())
-  param = Dict{String,Any}()
-  param["probability"] = probability
-  param["ϵ"] = main_param["ϵ"]
-  param["Kernel"] = main_param["Kernel"]
-  param["gamma"] = 1/(main_param["Θ"]^2)
-  param["C"] = 2*main_param["γ"]
-  param["Verbose"] = main_param["Verbose"]
-  return param
-end
-
 #Create a model given the parameters passed in p
 function CreateModel(tm::TestingModel,X,y) #tm testing_model, p parameters
-  if tm.MethodType == "BSVM"
-    tm.Model = BSVM(tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"],
-    kernels=tm.Param["Kernels"],Autotuning=tm.Param["AutoTuning"],autotuningfrequency=tm.Param["ATFrequency"],AdaptativeLearningRate=tm.Param["ALR"],κ_s=tm.Param["κ_s"],τ_s = tm.Param["τ_s"],ϵ=tm.Param["ϵ"],γ=tm.Param["γ"],
-    κ_Θ=tm.Param["κ"],τ_Θ=tm.Param["τ"],smoothingWindow=tm.Param["Window"],VerboseLevel=tm.Param["Verbose"])
-  elseif tm.MethodType == "GPC"
-    if tm.Param["Sparse"]
-      if tm.Param["Stochastic"]
-        #Stochastic Sparse GPC model
-        GPflow.svgp[:SVGP](X, reshape((y+1)./2,(length(y),1)),kern=tm.Param["Kernel"], likelihood=GPflow.likelihoods[:Bernoulli](), Z=KMeansInducingPoints(X,tm.Param["M"],10), minibatch_size=tm.Param["BatchSize"])
-      else
-        #Sparse GPC model
-        GPflow.svgp[:SVGP](X, reshape((y+1)./2,(size(y,1),1)),kern=tm.Param["Kernel"],likelihood=GPflow.likelihoods[:Bernoulli](), Z=KMeansInducingPoints(X,tm.Param["M"],10))
-      end
-    else
-      #Basic GPC model
-      tm.Model = GPflow.vgp[:VGP](X, reshape((y+1)./2,(size(y,1),1)),kern=tm.Param["Kernel"],likelihood=GPflow.likelihoods[:Bernoulli]())
-    end
-  elseif tm.MethodType == "SVM"
-    tm.Model = SVC(C=tm.Param["C"],gamma=tm.Param["gamma"], kernel=tm.Param["Kernel"],probability=tm.Param["probability"],tol=tm.Param["ϵ"],verbose=tm.Param["Verbose"])
-  end
+  tm.Model = BSVM(Stochastic=tm.Param["Stochastic"],batchSize=tm.Param["BatchSize"],Sparse=tm.Param["Sparse"],m=tm.Param["M"],NonLinear=tm.Param["NonLinear"],
+  kernels=tm.Param["Kernels"],Autotuning=tm.Param["AutoTuning"],autotuningfrequency=tm.Param["ATFrequency"],AdaptativeLearningRate=tm.Param["ALR"],κ_s=tm.Param["κ_s"],τ_s = tm.Param["τ_s"],ϵ=tm.Param["ϵ"],γ=tm.Param["γ"],
+  κ_Θ=tm.Param["κ"],τ_Θ=tm.Param["τ"],smoothingWindow=tm.Param["Window"],VerboseLevel=tm.Param["Verbose"])
 end
 
 #Train the model on trainin set (X,y) for #iterations
 function TrainModel(tm::TestingModel,X,y,iterations)
   time_training = 0;
-  if tm.MethodType == "BSVM"
-    tm.Model.nEpochs = iterations
-    time_training = @elapsed TrainBSVM(tm.Model,X,y)
-  elseif tm.MethodType == "GPC"
-    time_training = @elapsed tm.Model[:optimize](maxiter=iterations)
-  elseif tm.MethodType == "SVM"
-    tm.Model[:max_iter] = iterations
-    time_training = @elapsed tm.Model[:fit](X,y)
-  elseif tm.MethodType == "ECM"
-    time_training = @elapsed tm.Model = ECMTraining(X,y,γ=tm.Param["γ"],nepochs=iterations,ϵ=tm.Param["ϵ"],kernel=tm.Param["Kernel"],verbose=tm.Param["Verbose"])
-  end
+  tm.Model.nEpochs = iterations
+  time_training = @elapsed TrainBSVM(tm.Model,X,y)
   return time_training;
 end
 
@@ -182,7 +118,6 @@ function ProcessResults(tm::TestingModel,writing_order)
 end
 
 function PrintResults(results,method_name,writing_order)
-  println("Model $(method_name) : ")
   i = 1
   for category in writing_order
     println("$category : $(results[i*2-1]) ± $(results[i*2])")
@@ -199,18 +134,10 @@ end
 #Return predicted labels (-1,1) for test set X_test
 function ComputePrediction(tm::TestingModel, X, X_test)
   y_predic = []
-  if tm.MethodType == "BSVM"
-    if tm.Model.NonLinear
-      y_predic = sign(tm.Model.Predict(X,X_test))
-    else
-      y_predic = sign(tm.Model.Predict(X_test))
-    end
-  elseif tm.MethodType == "GPC"
-    y_predic = sign(tm.Model[:predict_y](X_test)[1]*2-1)
-  elseif tm.MethodType == "SVM"
-    y_predic = sign(tm.Model[:predict](X_test))
-  elseif tm.MethodType == "ECM"
-    y_predic = sign(PredicECM(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3]))
+  if tm.Model.NonLinear
+    y_predic = sign(tm.Model.Predict(X,X_test))
+  else
+    y_predic = sign(tm.Model.Predict(X_test))
   end
   return y_predic
 end
@@ -218,18 +145,10 @@ end
 #Return prediction certainty for class 1 on test set X_test
 function ComputePredictionAccuracy(tm::TestingModel, X, X_test)
   y_predic = []
-  if tm.MethodType == "BSVM"
-    if tm.Model.NonLinear
-      y_predic = tm.Model.PredictProba(X,X_test)
-    else
-      y_predic = tm.Model.PredictProba(X_test)
-    end
-  elseif tm.MethodType == "GPC"
-    y_predic = tm.Model[:predict_y](X_test)[1]
-  elseif tm.MethodType == "SVM"
-    y_predic = tm.Model[:predict_proba](X_test)[:,2]
-  elseif tm.MethodType == "ECM"
-    y_predic = PredictProbaECM(X,tm.Model[4],X_test,tm.Model[1],tm.Model[2],tm.Param["γ"],tm.Model[3])
+  if tm.Model.NonLinear
+    y_predic = tm.Model.PredictProba(X,X_test)
+  else
+    y_predic = tm.Model.PredictProba(X_test)
   end
   return y_predic
 end
