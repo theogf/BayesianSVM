@@ -1,9 +1,9 @@
-#### Test_Predictions ####
+#### Paper_Experiment_Predictions ####
 # Run on a file and compute accuracy on a nFold cross validation
 # Compute also the brier score and the logscore
 
-if !isdefined(:DataAccess); include("../src/DataAccess.jl"); println("cjecwcs"); end;
-if !isdefined(:TestFunctions); include("test_functions.jl");end;
+if !isdefined(:DataAccess); include("../src/DataAccess.jl"); end;
+if !isdefined(:TestFunctions); include("../src/paper_experiment_functions.jl");end;
 using TestFunctions
 using PyPlot
 using DataAccess
@@ -48,7 +48,7 @@ main_param["Verbose"] = false
 main_param["Window"] = 30
 #BSVM and GPC Parameters
 BBSVMParam = BSVMParameters(Stochastic=false,Sparse=false,ALR=false,main_param=main_param)
-SBSVMParam = BSVMParameters(Stochastic=false,Sparse=false,ALR=false,main_param=main_param)
+SBSVMParam = BSVMParameters(Stochastic=true,Sparse=true,ALR=false,main_param=main_param)
 GPCParam = GPCParameters(Stochastic=false,Sparse=false,main_param=main_param)
 ECMParam = ECMParameters(main_param=main_param)
 SVMParam = SVMParameters(main_param=main_param)
@@ -77,7 +77,7 @@ for (name,testmodel) in TestModels
   if doAccuracy;    testmodel.Results["accuracy"]   = Array{Float64,1}();end;
   if doBrierScore;  testmodel.Results["brierscore"] = Array{Float64,1}();end;
   if doLogScore;    testmodel.Results["logscore"]   = Array{Float64,1}();end;
-  for i in 1:2 #Run over all folds of the data
+  for i in 1:nFold #Run over all folds of the data
     if ShowIntResults
       println("#### Fold number $i/$nFold ###")
     end

@@ -1,4 +1,4 @@
-# Test_Functions.jl
+# Paper_Experiment_Functions.jl
 #= ---------------- #
 Set of datatype and functions for efficient testing.
 # ---------------- =#
