@@ -19,8 +19,7 @@
     - [Scikitlearn][scikitjl]
     
     *Note: to install new packages use the Pkg.add("ModuleName") function in Julia*
-* If you want to try the competitors as well you will need to install
-    **Python** : 
+* If you want to try the competitors as well you will need to install these  **Python** dependencies (as well as Python ofc): 
     * [Scikitlearn][scikit]
     * [Tensorflow][tflow]
     * [GPflow][gpflow]
