@@ -12,17 +12,17 @@
 * If you simply want to try out the package you need to install the **Julia** dependencies :
     - [Distributions][dist]
     - [PyPlot][pyplot]
-    - [PyCall][pycall]
     - [StatsBase][statsbase]
     - [GaussianMixtures][gaussm]
     - [Clustering][clustering]
     - [Scikitlearn][scikitjl]
     
     *Note: to install new packages use the Pkg.add("ModuleName") function in Julia*
-* If you want to try the competitors as well you will need to install these  **Python** dependencies (as well as Python ofc): 
-    * [Scikitlearn][scikit]
-    * [Tensorflow][tflow]
-    * [GPflow][gpflow]
+* If you want to try the competitors as well you will need to install these **Julia** and **Python** dependencies (as well as Python ofc): 
+    * (Julia)[PyCall][pycall]
+    * (Python)[Scikitlearn][scikit]
+    * (Python)[Tensorflow][tflow]
+    * (Python)[GPflow][gpflow]
     
     *Note: to use Tensorflow and GPflow, they must me included in the search path of PyCall, to do this use : `unshift!(PyVector(pyimport("sys")["path"]), "path_to_add")` and call `Pkg.build("PyCall")`, also note that they are much more complicate to install*
 * Both tests and source files are written in Julia (v0.5), one first needs to julia to run those, however a Python or Matlab user should be able to read easily through the code as the syntax is quite similar
