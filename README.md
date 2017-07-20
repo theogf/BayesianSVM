@@ -32,7 +32,7 @@
 
 * Go to the "test" folder, open "run_test.jl", chose the dataset and change the parameters (more is explained in the file) and simply run the file. (*for example change the type of BSVM (linear/nonlinear, sparse, use of stochasticity etc*)
 * If you want to also use the competitors, open "paper_experiments.jl", chose the dataset, chose the methods you want to test and adapt the parameters (more details in the file).
-* For more custom usage of the BSVM method, look at the source code of src/SVISVM.jl, where all the options are explained. More documentation will be there soon.
+* For more custom usage of the BSVM method, look at the source code of src/BSVM.jl, where all the options are explained. More documentation will be there soon.
 
 ### Who to contact ###
 
