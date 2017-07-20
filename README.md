@@ -9,9 +9,7 @@
 ### How do I install the package? ###
 
 * First clone this repository (`git clone https://github.com/theogf/BayesianSVM.git`)
-* Then install the julia and python dependencies : 
-* ***Dependencies***: 
-    **Julia** :
+* If you simply want to try out the package you need to install the **Julia** dependencies :
     - [Distributions][dist]
     - [PyPlot][pyplot]
     - [PyCall][pycall]
@@ -19,20 +17,22 @@
     - [GaussianMixtures][gaussm]
     - [Clustering][clustering]
     - [Scikitlearn][scikitjl]
-    *Note: to install new packages use the Pkg.add("ModuleName") function in Julia*
     
+    *Note: to install new packages use the Pkg.add("ModuleName") function in Julia*
+* If you want to try the competitors as well you will need to install
     **Python** : 
     * [Scikitlearn][scikit]
     * [Tensorflow][tflow]
     * [GPflow][gpflow]
-    *Note: to use Tensorflow and GPflow, they must me included in the search path of PyCall, to do this use : `unshift!(PyVector(pyimport("sys")["path"]), "path_to_add")` and call `Pkg.build("PyCall")`*
-* The Python packages only correspond to competitors methods, one does not need them to only use the Julia Package
+    
+    *Note: to use Tensorflow and GPflow, they must me included in the search path of PyCall, to do this use : `unshift!(PyVector(pyimport("sys")["path"]), "path_to_add")` and call `Pkg.build("PyCall")`, also note that they are much more complicate to install*
 * Both tests and source files are written in Julia (v0.5), one first needs to julia to run those, however a Python or Matlab user should be able to read easily through the code as the syntax is quite similar
 * Some light datasets are included (especially the **Rätsch Benchmark dataset**), the SUSY dataset can be found on UCI
 ### How to run tests? ###
 
-Go to the "test" folder, open the "test_predictions.jl" file, adapt the methods, the dataset and the parameters you want to use amd run the file.
-For more custom usage of the BSVM method, look at the source code of src/SVISVM.jl, where all the options are explained. More documentation will be there soon.
+* Go to the "test" folder, open "run_test.jl", chose the dataset and change the parameters (more is explained in the file) and simply run the file. (*for example change the type of BSVM (linear/nonlinear, sparse, use of stochasticity etc*)
+* If you want to also use the competitors, open "paper_experiments.jl", chose the dataset, chose the methods you want to test and adapt the parameters (more details in the file).
+* For more custom usage of the BSVM method, look at the source code of src/SVISVM.jl, where all the options are explained. More documentation will be there soon.
 
 ### Who to contact ###
 
