@@ -15,12 +15,12 @@
     - [StatsBase][statsbase]
     - [GaussianMixtures][gaussm]
     - [Clustering][clustering]
-    - [Scikitlearn][scikitjl]
+    - [ScikitLearn][scikitjl]
     
     *Note: to install new packages use the Pkg.add("ModuleName") function in Julia*
 * If you want to try the competitors as well you will need to install these **Julia** and **Python** dependencies (as well as Python ofc): 
     * (Julia)[PyCall][pycall]
-    * (Python)[Scikitlearn][scikit]
+    * (Python)[ScikitLearn][scikit]
     * (Python)[Tensorflow][tflow]
     * (Python)[GPflow][gpflow]
     
