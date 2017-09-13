@@ -7,7 +7,7 @@
 ### Objective ###
 
 * This repository contains the updated source code for the ***Bayesian Nonlinear Support Vector Machine (BSVM)*** both in its **stochastic (and with inducing points)** and its **batch version**
-* It relates to the paper submitted to ECML 17' __"Bayesian Nonlinear Support Vector Machines for Big Data"__ by Florian Wenzel, Théo Galy-Fajou, Matthäus Deutsch and Marius Kloft. Paper is available at [https://arxiv.org/abs/1707.05532][arxiv]
+* It relates to the paper published at the conference track of ECML 17' __"Bayesian Nonlinear Support Vector Machines for Big Data"__ by Florian Wenzel, Théo Galy-Fajou, Matthäus Deutsch and Marius Kloft. Paper is available at [https://arxiv.org/abs/1707.05532][arxiv]
 
 ### How do I install the package? ###
 
