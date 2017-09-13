@@ -1,10 +1,13 @@
+## DISCLAIMER ##
+**If you are looking for the Julia package of the Bayesian SVM please go to : [BayesianSVM.jl](https://github.com/theogf/BayesianSVM.jl) , this repository only contains an older version of the algorithm and the experiments presented in our paper**
+
 ## README ##
 
 
 ### Objective ###
 
 * This repository contains the updated source code for the ***Bayesian Nonlinear Support Vector Machine (BSVM)*** both in its **stochastic (and with inducing points)** and its **batch version**
-* It relates to the paper submitted to ECML 17' __"Bayesian Nonlinear Support Vector Machines for Big Data"__ by Florian Wenzel, Theo Galy-Fajou, Matthäus Deutsch and Marius Kloft. Paper is available at [https://arxiv.org/abs/1707.05532][arxiv]
+* It relates to the paper submitted to ECML 17' __"Bayesian Nonlinear Support Vector Machines for Big Data"__ by Florian Wenzel, Théo Galy-Fajou, Matthäus Deutsch and Marius Kloft. Paper is available at [https://arxiv.org/abs/1707.05532][arxiv]
 
 ### How do I install the package? ###
 
