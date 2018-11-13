@@ -1,5 +1,5 @@
-## DISCLAIMER ##
-**If you are looking for the Julia package of the Bayesian SVM please go to : [BayesianSVM.jl](https://github.com/theogf/BayesianSVM.jl) , this repository only contains an older version of the algorithm and the experiments presented in our paper**
+# !!!DISCLAIMER!!! #
+##  A better and more recent Julia implementation exists now at : [AugmentedGaussianProcesses.jl](https://github.com/theogf/AugmentedGaussianProcesses.jl) , this repository only contains an older version of the algorithm as well the experiments presented in our paper, it is relying on an outdated version of Julia
 
 ## README ##
 
